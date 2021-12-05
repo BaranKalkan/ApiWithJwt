@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using jwtProject.Data;
+using jwtProject.Model;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,29 +18,32 @@ namespace jwtProject.Controllers
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+        private readonly UserManager<ApiUser> _userManager;
+        private readonly ApiDbContext _apiDbContext;
 
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(
+            UserManager<ApiUser> userManager,
+            ApiDbContext apiDbContext)
         {
-            _logger = logger;
+            _userManager = userManager;
+            _apiDbContext = apiDbContext;
         }
 
+    
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        [Route("GetCurrentPage/{bookId}")]
+        public async Task<IActionResult> GetCurrentPage(int id)
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var user = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var userId = user.FindFirst("Id");
+
+            var count = await _apiDbContext.Users.FirstAsync(a => a.Id == userId.Value);
+            var book = count.Books.First(x => x.book.Id == id).CurrentPage;
+
+            return Ok(new List<string>
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+               book.ToString()
+            });
         }
     }
 }

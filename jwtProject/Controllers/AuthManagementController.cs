@@ -1,4 +1,5 @@
 ﻿using jwtProject.Configuration;
+using jwtProject.Model;
 using jwtProject.Model.DTOs.Requests;
 using jwtProject.Model.DTOs.Responses;
 using Microsoft.AspNetCore.Identity;
@@ -19,11 +20,11 @@ namespace jwtProject.Controllers
     [ApiController]
     public class AuthManagementController: ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApiUser> _userManager;
         private readonly JwtConfig _jwtConfig;
 
         public AuthManagementController(
-            UserManager<IdentityUser> userManager,
+            UserManager<ApiUser> userManager,
             IOptionsMonitor<JwtConfig> optionsMonitor)
         {
             _userManager = userManager;
@@ -50,7 +51,7 @@ namespace jwtProject.Controllers
                     });
                 }
 
-                var newUser = new IdentityUser()
+                var newUser = new ApiUser()
                 {
                     Email = user.Email,
                     UserName = user.Username
