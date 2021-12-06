@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace jwtProject.Controllers
@@ -53,59 +54,25 @@ namespace jwtProject.Controllers
 
         // GET: BookController/Create
         [HttpPost]
-        //[ValidateAntiForgeryToken]
         [Route("Create")]
         public IActionResult Create([FromBody] BookCreateRequest bookToCreate)
         {
-            if(!ModelState.IsValid) return BadRequest(new GeneralResponse { Errors = new List<string> { "Invalid parameters" }, Success = false });
+            if (!ModelState.IsValid)
+                return BadRequest(new GeneralResponse { Errors = new List<string> { "Invalid parameters" }, Success = false });
 
-            var bookOnDb = _apiDbContext.AllBooks.FirstOrDefault(dbBook => dbBook.Id == bookToCreate.Id);
+            var bookOnDb = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookToCreate.Id);
 
-            if (bookOnDb != null) return BadRequest(new GeneralResponse { Errors = new List<string> { "Book with the same id already exist"}, Success = false });
+            if (bookOnDb != null)
+                return BadRequest(new GeneralResponse { Errors = new List<string> { "Book with the same id already exist" }, Success = false });
 
             var book = _apiDbContext.AllBooks.Add(new Model.Book()
             {
                 Id = bookToCreate.Id,
                 Title = bookToCreate.Title,
                 Description = bookToCreate.Description,
-                TotalPage = bookToCreate.TotalPage
+                TotalPage = bookToCreate.TotalPage,
+                Author = null
             });
-
-            try
-            {
-                _apiDbContext.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                return BadRequest(new GeneralResponse
-                {
-                    Errors = new List<string>
-                    {
-                        "Unable to save changes -> ",
-                        e.Message // destroy this line
-                    },
-                    Success = false,
-                });
-            }
-            
-
-            return Ok();         
-        }
-
-
-        // GET: BookController/Edit/5
-        [HttpPost]
-        //[ValidateAntiForgeryToken]
-        [Route("Edit")]
-        public ActionResult Edit([FromBody] BookEditRequest newBookInfo)
-        {
-            if (!ModelState.IsValid) return BadRequest(new GeneralResponse { Errors = new List<string> { "Invalid parameters" }, Success = false });
-
-            var bookOnDb = _apiDbContext.AllBooks.FirstOrDefault(dbBook => dbBook.Id == newBookInfo.Id);
-
-            if (bookOnDb == null) return BadRequest(new GeneralResponse { Errors = new List<string> { "Book doesn't exist" }, Success = false });
-
-            _apiDbContext.Entry(bookOnDb).CurrentValues.SetValues(newBookInfo);
 
             try
             {
@@ -129,18 +96,54 @@ namespace jwtProject.Controllers
         }
 
 
-        // GET: BookController/Delete/5
-        [HttpGet]
-        [Route("Delete")]
-        public IActionResult Delete(int id)
+        // GET: BookController/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Route("Edit")]
+        public ActionResult Edit([FromBody] BookEditRequest newBookInfo)
         {
-            return null;
+            if (!ModelState.IsValid) return BadRequest();
+
+            var bookOnDb = _apiDbContext.AllBooks.FirstOrDefault(dbBook => dbBook.Id == newBookInfo.Id);
+
+            if (bookOnDb == null)
+                return BadRequest(
+                    new GeneralResponse
+                    {
+                        Errors = new List<string>
+                        {
+                            "Book doesnt exist"
+                        },
+                        Success = false
+                    });
+
+            _apiDbContext.Entry(bookOnDb).CurrentValues.SetValues(newBookInfo);
+
+            try
+            {
+                _apiDbContext.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                return BadRequest(new GeneralResponse
+                {
+                    Errors = new List<string>
+                    {
+                        "Unable to save changes -> ",
+                        e.Message // destroy this line
+                    },
+                    Success = false,
+                });
+            }
+
+
+            return LocalRedirect($"Details/{bookOnDb.Id}");
         }
 
         // POST: BookController/Delete/5
         [HttpPost]
         [Route("Delete/{id}/{collection}")]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public IActionResult Delete(int id, IFormCollection collection)
         {
             return null;

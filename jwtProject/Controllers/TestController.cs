@@ -16,12 +16,12 @@ namespace jwtProject.Controllers
     [ApiController]
     [Route("[controller]")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class WeatherForecastController : ControllerBase
+    public class TestController : ControllerBase
     {
         private readonly UserManager<ApiUser> _userManager;
         private readonly ApiDbContext _apiDbContext;
 
-        public WeatherForecastController(
+        public TestController(
             UserManager<ApiUser> userManager,
             ApiDbContext apiDbContext)
         {

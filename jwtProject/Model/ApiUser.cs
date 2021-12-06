@@ -6,5 +6,6 @@ namespace jwtProject.Model
     public class ApiUser : IdentityUser
     {
         public List<UserBook> Books { get; set; }
+        
     }
 }
