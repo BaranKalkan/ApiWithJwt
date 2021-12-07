@@ -14,13 +14,13 @@ namespace jwtProject.Controllers
     {
         private readonly ApiDbContext _context;
         private readonly UserManager<ApiUser> _userManager;
-        private readonly RoleManager<ApiUser> _roleManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<ClaimsSetupController> _logger;
 
         public ClaimsSetupController(
             ApiDbContext context,
             UserManager<ApiUser> userManager,
-            RoleManager<ApiUser> roleManager,
+            RoleManager<IdentityRole> roleManager,
             ILogger<ClaimsSetupController> logger
         )
         {

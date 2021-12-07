@@ -16,7 +16,7 @@ namespace jwtProject.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "AppUser")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ApplicationUser")]
     public class BookController : Controller
     {
         private readonly ApiDbContext _apiDbContext;
