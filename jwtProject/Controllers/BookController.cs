@@ -16,7 +16,7 @@ namespace jwtProject.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "AppUser")]
     public class BookController : Controller
     {
         private readonly ApiDbContext _apiDbContext;
@@ -55,6 +55,7 @@ namespace jwtProject.Controllers
         // GET: BookController/Create
         [HttpPost]
         [Route("Create")]
+        [Authorize(Policy = "LibraryPolicy")]
         public IActionResult Create([FromBody] BookCreateRequest bookToCreate)
         {
             if (!ModelState.IsValid)

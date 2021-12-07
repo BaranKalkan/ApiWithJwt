@@ -63,7 +63,7 @@ namespace jwtProject
             });
 
             // not sure about apiuser
-            services.AddDefaultIdentity<ApiUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddIdentity<ApiUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApiDbContext>();
 
             services.AddControllers();
@@ -93,6 +93,13 @@ namespace jwtProject
                 {
                     { jwtSecurityScheme, Array.Empty<string>() }
                 });
+            });
+
+            // Authorization System Implemented Here
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("LibraryPolicy",
+                    policy => policy.RequireClaim("AdminLibrarian")); //Admin Librarian authority is required in LibraryPolicy in user
             });
             
         }

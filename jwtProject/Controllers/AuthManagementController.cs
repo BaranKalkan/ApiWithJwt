@@ -4,6 +4,7 @@ using jwtProject.Model.DTOs.Requests;
 using jwtProject.Model.DTOs.Responses;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -22,13 +23,22 @@ namespace jwtProject.Controllers
     {
         private readonly UserManager<ApiUser> _userManager;
         private readonly JwtConfig _jwtConfig;
+        private readonly TokenValidationParameters _tokenValidationParams; // its not being used right now and JSON token is not replenished after 8 hours (will be implemented)
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ILogger<AuthManagementController> _logger;
 
         public AuthManagementController(
             UserManager<ApiUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            TokenValidationParameters tokenValidationParams,
+            ILogger<AuthManagementController> logger,
             IOptionsMonitor<JwtConfig> optionsMonitor)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _jwtConfig = optionsMonitor.CurrentValue;
+            _tokenValidationParams = tokenValidationParams;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -60,7 +70,9 @@ namespace jwtProject.Controllers
                 var isCreated = await _userManager.CreateAsync(newUser, user.Password);
                 if (isCreated.Succeeded)
                 {
-                    var jwtToken = GenerateJwtToken(newUser);
+                    await _userManager.AddToRoleAsync(newUser, "ApplicationUser"); // Change Application user to any role name. Its basic user
+                    
+                    var jwtToken = await GenerateJwtTokenAsync(newUser);
                     return Ok(new RegistrationResponse()
                     {
                         Success = true,
@@ -122,7 +134,7 @@ namespace jwtProject.Controllers
                     });
                 }
 
-                var jwtToken = GenerateJwtToken(existingUser);
+                var jwtToken = await GenerateJwtTokenAsync(existingUser);
 
                 return Ok(new RegistrationResponse()
                 {
@@ -141,33 +153,67 @@ namespace jwtProject.Controllers
             });
         }
 
-        private string GenerateJwtToken(IdentityUser user)
+        private async Task<string> GenerateJwtTokenAsync(ApiUser user)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
 
             var key = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
 
-            var tokenDecsriptor = new SecurityTokenDescriptor()
+            var claims = await GetAllValidClaims(user);
+
+            var tokenDescriptor = new SecurityTokenDescriptor()
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                    new Claim("Id", user.Id),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                }),
-
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddHours(8),
-
-                SigningCredentials = new SigningCredentials(
-                    new SymmetricSecurityKey(key),
-                    SecurityAlgorithms.HmacSha256Signature)
+            SigningCredentials = new SigningCredentials(
+                new SymmetricSecurityKey(key),
+                SecurityAlgorithms.HmacSha256Signature)
             };
 
-            var token = jwtTokenHandler.CreateToken(tokenDecsriptor);
+            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
             var jwtToken = jwtTokenHandler.WriteToken(token);
 
             return jwtToken;
         }
+
+        // Get all valid claims for the corresponding user (it adds user roles to JSON token as claim)
+        private async Task<List<Claim>> GetAllValidClaims(ApiUser user)
+        {
+            var _options = new IdentityOptions();
+
+            var claims = new List<Claim>
+            {
+                new Claim("Id", user.Id),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            // Getting the claims that we have assigned to the user
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            claims.AddRange(userClaims);
+
+            // Get the user role and add it to the claims
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            foreach (var userRole in userRoles)
+            {
+                var role = await _roleManager.FindByNameAsync(userRole);
+
+                if (role != null)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, userRole));
+
+                    var roleClaims = await _roleManager.GetClaimsAsync(role);
+                    foreach (var roleClaim in roleClaims)
+                    {
+                        claims.Add(roleClaim);
+                    }
+                }
+            }
+
+            return claims;
+        }
     }
+
 }
