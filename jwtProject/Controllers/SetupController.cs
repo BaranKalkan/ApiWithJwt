@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using jwtProject.Data;
+using jwtProject.Model;
 
 namespace jwtProject.Controllers
 {
@@ -15,13 +16,13 @@ namespace jwtProject.Controllers
     public class SetupController : ControllerBase
     {
         private readonly ApiDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApiUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<SetupController> _logger;
 
         public SetupController(
             ApiDbContext context,
-            UserManager<IdentityUser> userManager,
+            UserManager<ApiUser> userManager,
             RoleManager<IdentityRole> roleManager,
             ILogger<SetupController> logger
         )

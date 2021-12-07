@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Threading.Tasks;
 using jwtProject.Data;
+using jwtProject.Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -12,14 +13,14 @@ namespace jwtProject.Controllers
     public class ClaimsSetupController : ControllerBase
     {
         private readonly ApiDbContext _context;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly UserManager<ApiUser> _userManager;
+        private readonly RoleManager<ApiUser> _roleManager;
         private readonly ILogger<ClaimsSetupController> _logger;
 
         public ClaimsSetupController(
             ApiDbContext context,
-            UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager,
+            UserManager<ApiUser> userManager,
+            RoleManager<ApiUser> roleManager,
             ILogger<ClaimsSetupController> logger
         )
         {
