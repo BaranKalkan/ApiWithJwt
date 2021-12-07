@@ -16,11 +16,11 @@ namespace jwtProject.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class BooksController : Controller
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "ApplicationUser")]
+    public class BookController : Controller
     {
         private readonly ApiDbContext _apiDbContext;
-        public BooksController(ApiDbContext apiDbContext)
+        public BookController(ApiDbContext apiDbContext)
         {
             _apiDbContext = apiDbContext;
         }
@@ -68,6 +68,8 @@ namespace jwtProject.Controllers
 
         // Post: Books/
         [HttpPost]
+        [Route("Create")]
+        [Authorize(Policy = "LibraryPolicy")]
         public IActionResult Create([FromBody] BookCreateRequest bookToCreate)
         {
             if (!ModelState.IsValid) return BadRequest(new GeneralResponse { Errors = new List<string> { "Invalid parameters" }, Success = false });
