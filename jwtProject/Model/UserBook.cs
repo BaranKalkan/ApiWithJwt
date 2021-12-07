@@ -10,8 +10,8 @@ namespace jwtProject.Model
     {
         //public int userid { get; set; }
         public int Id { get; set; }
-        public Book book { get; set; }
         public int CurrentPage { get; set; }
+        public Book book { get; set; }
 
     }
 }

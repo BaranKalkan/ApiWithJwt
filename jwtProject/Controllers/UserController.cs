@@ -40,10 +40,7 @@ namespace jwtProject.Controllers
 
             // if (bookOnDb == null) return BadRequest(new GeneralResponse { Errors = new List<string> { "Book doesn't exist" }, Success = false });
 
-            return new OkObjectResult(user.Books); ;
-
+            return new OkObjectResult(user.Books); 
         }
-
-    
     }
 }

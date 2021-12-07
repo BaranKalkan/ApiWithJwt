@@ -17,53 +17,64 @@ namespace jwtProject.Controllers
     [ApiController]
     [Route("[controller]")]
     //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class BookController : Controller
+    public class BooksController : Controller
     {
         private readonly ApiDbContext _apiDbContext;
-        public BookController(ApiDbContext apiDbContext)
+        public BooksController(ApiDbContext apiDbContext)
         {
             _apiDbContext = apiDbContext;
         }
 
-        // GET: BookController/Details/5
+        // GET: Books/
         [HttpGet]
-        [Route("Details/{bookId}")]
-        public IActionResult Details(int bookId)
+        public IActionResult Books()
         {
-            var book = _apiDbContext.AllBooks.First(x => x.Id == bookId);
-            if ( book == null)
+            var books = _apiDbContext.AllBooks.ToList();
+            if (books == null)
             {
-                return BadRequest(new RegistrationResponse()
+                return BadRequest(new GeneralResponse()
                 {
                     Errors = new List<string>()
                         {
                             "Book doesn't exist"
                         },
-                    Success = false
+                    Success = false,
                 });
             }
 
-            return Ok(new List<string>
-            {
-                book.Id.ToString(),
-                book.Title,
-                book.Description,
-                book.TotalPage.ToString()
-            });
+            return Json(books);
         }
 
-        // GET: BookController/Create
+        // GET: Books/5
+        [HttpGet]
+        [Route("{bookId}")]
+        public IActionResult Book(int bookId)
+        {
+            var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
+            if ( book == null)
+            {
+                return BadRequest(new GeneralResponse()
+                {
+                    Errors = new List<string>()
+                        {
+                            "Book doesn't exist"
+                        },
+                    Success = false,
+                });
+            }
+        
+            return Json(book);
+        }
+
+        // Post: Books/
         [HttpPost]
-        [Route("Create")]
         public IActionResult Create([FromBody] BookCreateRequest bookToCreate)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(new GeneralResponse { Errors = new List<string> { "Invalid parameters" }, Success = false });
+            if (!ModelState.IsValid) return BadRequest(new GeneralResponse { Errors = new List<string> { "Invalid parameters" }, Success = false });
 
-            var bookOnDb = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookToCreate.Id);
+            var bookOnDb = _apiDbContext.AllBooks.Any(x => x.Id == bookToCreate.Id);
 
-            if (bookOnDb != null)
-                return BadRequest(new GeneralResponse { Errors = new List<string> { "Book with the same id already exist" }, Success = false });
+            if (bookOnDb) return BadRequest(new GeneralResponse { Errors = new List<string> { "Book with the same id already exist" }, Success = false });
 
             var book = _apiDbContext.AllBooks.Add(new Model.Book()
             {
@@ -71,7 +82,7 @@ namespace jwtProject.Controllers
                 Title = bookToCreate.Title,
                 Description = bookToCreate.Description,
                 TotalPage = bookToCreate.TotalPage,
-                Author = null
+                Author = bookToCreate.Author
             });
 
             try
@@ -91,15 +102,11 @@ namespace jwtProject.Controllers
                 });
             }
 
-
-            return Ok();
+            return Json(book);
         }
 
-
-        // GET: BookController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Route("Edit")]
+        // Put: Books/
+        [HttpPut]
         public ActionResult Edit([FromBody] BookEditRequest newBookInfo)
         {
             if (!ModelState.IsValid) return BadRequest();
@@ -136,17 +143,15 @@ namespace jwtProject.Controllers
                 });
             }
 
-
-            return LocalRedirect($"Details/{bookOnDb.Id}");
+            return Json(bookOnDb);
         }
 
-        // POST: BookController/Delete/5
-        [HttpPost]
-        [Route("Delete/{id}/{collection}")]
-        [ValidateAntiForgeryToken]
-        public IActionResult Delete(int id, IFormCollection collection)
+        // DELETE: Books/5
+        [HttpDelete]
+        [Route("{bookId}")]
+        public IActionResult Delete(int bookId)
         {
-            return null;
+            return Json("Delete func is not implemented yet");
         }
     }
 }
