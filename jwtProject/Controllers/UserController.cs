@@ -36,27 +36,29 @@ namespace jwtProject.Controllers
         {
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
-            var user = await _userManager.FindByIdAsync(userId.ToString());
+            var user = await _userManager.FindByIdAsync(userId.Value);
 
-            // if (bookOnDb == null) return BadRequest(new GeneralResponse { Errors = new List<string> { "Book doesn't exist" }, Success = false });
-
+            // kitap yoksa ağlamasın
             return new OkObjectResult(user.Books); 
         }
 
         // Haven't tested yet (Not working right now)
         [HttpPost]
         [Route("Details/{bookId}/AddFavourite")]
-        public async Task<IActionResult> AddFavourite(int bookID)
+        public async Task<IActionResult> AddFavourite(int bookId)
         {
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
-            var user = await _userManager.FindByIdAsync(userId.ToString());
+            var user = await _userManager.FindByIdAsync(userId.Value);
 
-            var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookID);
+            var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
 
             //creates new userbook to add user
             var UBook = new UserBook(book);
-            user.FavouriteBooks.Add(UBook);
+
+           // ****
+
+           // user.FavouriteBooks.Add(UBook);
 
             //Return UBook(UserBook) or Book?
             return Json(UBook);

@@ -13,6 +13,10 @@ namespace jwtProject.Model
         public int CurrentPage { get; set; }
         public Book book { get; set; }
         
+        public UserBook()
+        {
+
+        }
         
         //First Creation CTOR (thisCtor might change) 
         public UserBook(Book book)

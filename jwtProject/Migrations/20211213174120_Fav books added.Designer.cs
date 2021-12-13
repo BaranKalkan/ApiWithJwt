@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using jwtProject.Data;
 
 namespace jwtProject.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211213174120_Fav books added")]
+    partial class Favbooksadded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -237,23 +239,23 @@ namespace jwtProject.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("ApiUserId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ApiUserId1")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("CurrentPage")
                         .HasColumnType("INTEGER");
-
-                    b.Property<string>("UsersBook")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UsersFavBook")
-                        .HasColumnType("TEXT");
 
                     b.Property<int?>("bookId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UsersBook");
+                    b.HasIndex("ApiUserId");
 
-                    b.HasIndex("UsersFavBook");
+                    b.HasIndex("ApiUserId1");
 
                     b.HasIndex("bookId");
 
@@ -315,11 +317,11 @@ namespace jwtProject.Migrations
                 {
                     b.HasOne("jwtProject.Model.ApiUser", null)
                         .WithMany("Books")
-                        .HasForeignKey("UsersBook");
+                        .HasForeignKey("ApiUserId");
 
                     b.HasOne("jwtProject.Model.ApiUser", null)
                         .WithMany("FavouriteBooks")
-                        .HasForeignKey("UsersFavBook");
+                        .HasForeignKey("ApiUserId1");
 
                     b.HasOne("jwtProject.Model.Book", "book")
                         .WithMany()
