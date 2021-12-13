@@ -25,7 +25,8 @@ namespace jwtProject.Controllers
             _apiDbContext = apiDbContext;
         }
 
-        // GET: Books/
+        // GET: Book/
+        [AllowAnonymous] // Allows users without login to look book details
         [HttpGet]
         public IActionResult Books()
         {
@@ -45,7 +46,7 @@ namespace jwtProject.Controllers
             return Json(books);
         }
 
-        // GET: Books/5
+        // GET: Book/5
         [HttpGet]
         [Route("{bookId}")]
         public IActionResult Book(int bookId)
@@ -66,7 +67,7 @@ namespace jwtProject.Controllers
             return Json(book);
         }
 
-        // Post: Books/
+        // Post: Book/Create
         [HttpPost]
         [Route("Create")]
         [Authorize(Policy = "LibraryPolicy")]
@@ -107,7 +108,7 @@ namespace jwtProject.Controllers
             return Json(book);
         }
 
-        // Put: Books/
+        // Put: Book/Edit
         [HttpPut]
         public ActionResult Edit([FromBody] BookEditRequest newBookInfo)
         {
@@ -148,12 +149,14 @@ namespace jwtProject.Controllers
             return Json(bookOnDb);
         }
 
-        // DELETE: Books/5
+        // DELETE: Book/5
         [HttpDelete]
         [Route("{bookId}")]
         public IActionResult Delete(int bookId)
         {
             return Json("Delete func is not implemented yet");
         }
+
+
     }
 }

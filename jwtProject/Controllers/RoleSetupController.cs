@@ -11,20 +11,20 @@ using jwtProject.Model;
 
 namespace jwtProject.Controllers
 {
-    [Route("api/[controller]")]  // api/setup
+    [Route("api/[controller]")]  // api/roleSetup
     [ApiController]
-    public class SetupController : ControllerBase
+    public class RoleSetupController : ControllerBase
     {
         private readonly ApiDbContext _context;
         private readonly UserManager<ApiUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly ILogger<SetupController> _logger;
+        private readonly ILogger<RoleSetupController> _logger;
 
-        public SetupController(
+        public RoleSetupController(
             ApiDbContext context,
             UserManager<ApiUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ILogger<SetupController> logger
+            ILogger<RoleSetupController> logger
         )
         {
             _logger = logger;
