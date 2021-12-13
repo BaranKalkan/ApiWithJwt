@@ -21,6 +21,7 @@ namespace jwtProject.Controllers
     [ApiController]
     public class AuthManagementController: ControllerBase
     {
+
         private readonly UserManager<ApiUser> _userManager;
         private readonly JwtConfig _jwtConfig;
         //private readonly TokenValidationParameters _tokenValidationParams; // its not being used right now and JSON token is not replenished after 8 hours (will be implemented)
