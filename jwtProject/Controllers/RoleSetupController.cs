@@ -11,7 +11,7 @@ using jwtProject.Model;
 
 namespace jwtProject.Controllers
 {
-    [Route("api/[controller]")]  // api/setup
+    [Route("api/[controller]")]  // api/roleSetup
     [ApiController]
     public class RoleSetupController : ControllerBase
     {

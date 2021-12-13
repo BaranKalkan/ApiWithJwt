@@ -42,5 +42,25 @@ namespace jwtProject.Controllers
 
             return new OkObjectResult(user.Books); 
         }
+
+        // Haven't tested yet (Not working right now)
+        [HttpPost]
+        [Route("Details/{bookId}/AddFavourite")]
+        public async Task<IActionResult> AddFavourite(int bookID)
+        {
+            var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var userId = userIdentity.FindFirst("Id");
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+
+            var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookID);
+
+            //creates new userbook to add user
+            var UBook = new UserBook(book);
+            user.FavouriteBooks.Add(UBook);
+
+            //Return UBook(UserBook) or Book?
+            return Json(UBook);
+        }
+
     }
 }
