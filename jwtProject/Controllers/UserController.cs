@@ -50,15 +50,25 @@ namespace jwtProject.Controllers
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
             var user = await _userManager.FindByIdAsync(userId.Value);
-
             var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
 
-            //creates new userbook to add user
-            var UBook = new UserBook(book);
+            var UBook = new UserBook
+            {
+                book = book,
+                CurrentPage = 0
+            };
 
-           // ****
+            user.Books.Add(UBook);
+            _apiDbContext.Update(user);
 
-           // user.FavouriteBooks.Add(UBook);
+            try
+            {
+                _apiDbContext.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
 
             //Return UBook(UserBook) or Book?
             return Json(UBook);

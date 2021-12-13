@@ -8,9 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using jwtProject.Data;
 using jwtProject.Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace jwtProject.Controllers
 {
+    [Authorize(Roles = "AdminUser")]
     [Route("api/[controller]")]  // api/roleSetup
     [ApiController]
     public class RoleSetupController : ControllerBase
