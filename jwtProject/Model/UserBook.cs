@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,14 +9,15 @@ namespace jwtProject.Model
 {
     public class UserBook
     {
-        //public int userid { get; set; }
+        
         public int Id { get; set; }
+        public string userid { get; set; }
         public int CurrentPage { get; set; }
         public Book book { get; set; }
         
         public UserBook()
         {
-
+            
         }
         
         //First Creation CTOR (thisCtor might change) 
@@ -25,5 +27,6 @@ namespace jwtProject.Model
             this.CurrentPage = 0;
             this.book = book;
         }
+
     }
 }

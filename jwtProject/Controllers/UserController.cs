@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -37,9 +37,14 @@ namespace jwtProject.Controllers
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
             var user = await _userManager.FindByIdAsync(userId.Value);
-
+            var BookList = new List<UserBook>();
+            
+            _apiDbContext.AllUserBooks.ForEachAsync<UserBook>(x =>
+            {
+                if (x.userid == userId.Value) BookList.Add(x);
+            });
             // kitap yoksa ağlamasın
-            return new OkObjectResult(user.Books); 
+            return Json(BookList); 
         }
 
         // Haven't tested yet (Not working right now)
@@ -54,6 +59,7 @@ namespace jwtProject.Controllers
 
             var UBook = new UserBook
             {
+                userid = userId.Value,
                 book = book,
                 CurrentPage = 0
             };
