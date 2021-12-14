@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using jwtProject.Data;
 
 namespace jwtProject.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211214151925_please work")]
+    partial class pleasework
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -249,8 +251,8 @@ namespace jwtProject.Migrations
                     b.Property<int?>("bookId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("userid")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("userid")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -260,7 +262,7 @@ namespace jwtProject.Migrations
 
                     b.HasIndex("bookId");
 
-                    b.ToTable("AllUserBooks");
+                    b.ToTable("UserBook");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
