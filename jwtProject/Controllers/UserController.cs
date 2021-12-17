@@ -39,18 +39,17 @@ namespace jwtProject.Controllers
             var user = await _userManager.FindByIdAsync(userId.Value);
             var BookList = new List<UserBook>();
             
-            _apiDbContext.AllUserBooks.ForEachAsync<UserBook>(x =>
+            await _apiDbContext.AllUserBooks.Include(x=>x.book).ForEachAsync<UserBook>(x =>
             {
                 if (x.userid == userId.Value) BookList.Add(x);
             });
             // kitap yoksa ağlamasın
             return Json(BookList); 
         }
-
-        // Haven't tested yet (Not working right now)
+ 
         [HttpPost]
-        [Route("Details/{bookId}/AddFavourite")]
-        public async Task<IActionResult> AddFavourite(int bookId)
+        [Route("Details/{bookId}/AddToBooks")]
+        public async Task<IActionResult> AddToBooks(int bookId)
         {
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
@@ -76,9 +75,58 @@ namespace jwtProject.Controllers
                 Console.WriteLine(e.Message);
             }
 
-            //Return UBook(UserBook) or Book?
             return Json(UBook);
         }
 
+        [HttpGet]
+        [Route("UserFavBooks")]
+        public async Task<IActionResult> UserFavBooks()
+        {
+            var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var userId = userIdentity.FindFirst("Id");
+            var user = await _userManager.FindByIdAsync(userId.Value);
+            var BookList = new List<UserBook>();
+
+            await _apiDbContext.AllUserBooks.Include(x => x.book).ForEachAsync<UserBook>(x =>
+            {
+                user.FavouriteBooks.ForEach(y =>
+                {
+                    if (y.Id == x.Id) BookList.Add(x);
+                });
+            });
+            // kitap yoksa ağlamasın
+            return Json(BookList);
+        }
+
+        [HttpPost]
+        [Route("Details/{bookId}/AddToFavBooks")]
+        public async Task<IActionResult> AddToFavourites(int bookId)
+        {
+            var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var userId = userIdentity.FindFirst("Id");
+            var user = await _userManager.FindByIdAsync(userId.Value);
+            var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
+
+            var UBook = new UserBook
+            {
+                userid = userId.Value,
+                book = book,
+                CurrentPage = 0
+            };
+
+            user.FavouriteBooks.Add(UBook);
+            _apiDbContext.Update(user);
+
+            try
+            {
+                _apiDbContext.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return Json(UBook);
+        }
     }
 }
