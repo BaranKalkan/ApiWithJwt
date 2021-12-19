@@ -12,7 +12,7 @@ namespace jwtProject.Model
         public List<UserBook> FavouriteBooks { get; set; }
 
         public ApiUser()
-        {
+        {  
             Books = new List<UserBook>();
             FavouriteBooks = new List<UserBook>();
         }

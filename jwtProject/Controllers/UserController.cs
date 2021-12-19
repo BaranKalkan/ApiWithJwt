@@ -43,19 +43,45 @@ namespace jwtProject.Controllers
             {
                 if (x.userid == userId.Value) BookList.Add(x);
             });
-            // kitap yoksa ağlamasın
+
+            if (BookList.Count == 0)
+            {
+                return BadRequest(new GeneralResponse()
+                {
+                    Errors = new List<string>()
+                        {
+                            "No Books on User"
+                        },
+                    Success = false,
+                });
+            }
             return Json(BookList); 
         }
  
         [HttpPost]
-        [Route("Details/{bookId}/AddToBooks")]
-        public async Task<IActionResult> AddToBooks(int bookId)
+        [Route("Details/{bookId}/AddToUserBooks")]
+        public async Task<IActionResult> AddToUserBooks(int bookId)
         {
+            //Find User
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
             var user = await _userManager.FindByIdAsync(userId.Value);
-            var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
 
+            //Find book
+            var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
+            if (book == null)
+            {
+                return BadRequest(new GeneralResponse()
+                {
+                    Errors = new List<string>()
+                        {
+                            "Book doesn't exist"
+                        },
+                    Success = false,
+                });
+            }
+
+            //Create UserBook
             var UBook = new UserBook
             {
                 userid = userId.Value,
@@ -63,6 +89,7 @@ namespace jwtProject.Controllers
                 CurrentPage = 0
             };
 
+            //Add to DB
             user.Books.Add(UBook);
             _apiDbContext.Update(user);
 
@@ -85,8 +112,9 @@ namespace jwtProject.Controllers
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
             var user = await _userManager.FindByIdAsync(userId.Value);
-            var BookList = new List<UserBook>();
 
+            //Adds all favourites to list
+            var BookList = new List<UserBook>();
             await _apiDbContext.AllUserBooks.Include(x => x.book).ForEachAsync<UserBook>(x =>
             {
                 user.FavouriteBooks.ForEach(y =>
@@ -94,7 +122,20 @@ namespace jwtProject.Controllers
                     if (y.Id == x.Id) BookList.Add(x);
                 });
             });
-            // kitap yoksa ağlamasın
+
+            //If favourites is empty returns error
+            if(BookList.Count==0)
+            {
+                return BadRequest(new GeneralResponse()
+                {
+                    Errors = new List<string>()
+                        {
+                            "No Favourites"
+                        },
+                        Success = false,
+                });
+            }
+            
             return Json(BookList);
         }
 
@@ -102,31 +143,157 @@ namespace jwtProject.Controllers
         [Route("Details/{bookId}/AddToFavBooks")]
         public async Task<IActionResult> AddToFavourites(int bookId)
         {
+            //Find User
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
             var user = await _userManager.FindByIdAsync(userId.Value);
+            
+            //Find book
             var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
-
-            var UBook = new UserBook
+            //Error if book doesnt exist
+            if (book == null)
             {
-                userid = userId.Value,
-                book = book,
-                CurrentPage = 0
-            };
+                return BadRequest(new GeneralResponse()
+                {
+                    Errors = new List<string>()
+                        {
+                            "Book doesn't exist"
+                        },
+                    Success = false,
+                });
+            }
 
-            user.FavouriteBooks.Add(UBook);
+            //Control if book is exists in favourites
+            var BookList = new List<UserBook>();
+            await _apiDbContext.AllUserBooks.Include(x => x.book).ForEachAsync<UserBook>(x =>
+            {
+                user.FavouriteBooks.ForEach(y =>
+                {
+                    if (y.Id == x.Id) BookList.Add(x);
+                });
+            });
+
+            var existBook = BookList.FirstOrDefault(x => x.book.Id == bookId);
+            if (existBook != null)
+            {
+                return BadRequest(new GeneralResponse()
+                {
+                    Errors = new List<string>()
+                        {
+                            "Already favourited this book!"
+                        },
+                    Success = false,
+                });
+            }
+            else
+            {
+                var UBook = new UserBook
+                {
+                    userid = userId.Value,
+                    book = book,
+                    CurrentPage = 0
+                };
+
+                user.FavouriteBooks.Add(UBook);
+                _apiDbContext.Update(user);
+
+                try
+                {
+                    _apiDbContext.SaveChanges();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+
+                return Json(UBook);
+            }
+        }
+
+        [HttpDelete]
+        [Route("Details/{bookId}/DeleteFromUserBooks")]
+        public async Task<IActionResult> DeleteUserBook(int userBookId)
+        {
+            var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var userId = userIdentity.FindFirst("Id");
+            var user = await _userManager.FindByIdAsync(userId.Value);
+
+            var existItem = await _apiDbContext.AllUserBooks.FirstOrDefaultAsync(x => x.Id == userBookId);
+
+            if (existItem == null)
+                return NotFound();
+            
+            //User can only delete his book!
+            if(existItem.userid != userId.Value)
+                return NotFound();
+
+            _apiDbContext.AllUserBooks.Remove(existItem);
+            await _apiDbContext.SaveChangesAsync();
+
+            return Ok(existItem);
+        }
+
+        [HttpDelete]
+        [Route("Favourites/{bookId}/RemoveFromFavourites")]
+        public async Task<IActionResult> DeleteFavBook(int bookId)
+        {
+            //Find User
+            var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var userId = userIdentity.FindFirst("Id");
+            var user = await _userManager.FindByIdAsync(userId.Value);
+
+            //Finds All Favourites (Why TF)
+            var BookList = new List<UserBook>();
+            await _apiDbContext.AllUserBooks.Include(x => x.book).ForEachAsync<UserBook>(x =>
+            {
+                user.FavouriteBooks.ForEach(y =>
+                {
+                    if (y.Id == x.Id) BookList.Add(x);
+                });
+            });
+
+            //Find book
+            var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
+            //Error if book doesnt exist
+            if (book == null)
+            {
+                return BadRequest(new GeneralResponse()
+                {
+                    Errors = new List<string>()
+                        {
+                            "Book doesn't exist"
+                        },
+                    Success = false,
+                });
+            }
+
+            //ENTER BOOK ID
+            var existItem = user.FavouriteBooks.FirstOrDefault(x => x.book.Id == bookId);
+            //Control if book is favourited
+            if (existItem == null)
+                return NotFound();
+            
+            //DB actios
             _apiDbContext.Update(user);
-
             try
             {
-                _apiDbContext.SaveChanges();
+                user.FavouriteBooks.Remove(existItem);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
 
-            return Json(UBook);
+            try
+            {
+                await _apiDbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return Ok(existItem);
         }
     }
 }
