@@ -1,2 +1,2 @@
 # ApiWithJwt
- Base for any rest api project with jwt 
+Personal library api that works with gutenberg.
