@@ -81,6 +81,28 @@ namespace jwtProject.Controllers
                 });
             }
 
+            var BookList = new List<UserBook>();
+            await _apiDbContext.AllUserBooks.Include(x => x.book).ForEachAsync<UserBook>(x =>
+            {
+                user.Books.ForEach(y =>
+                {
+                    if (y.Id == x.Id) BookList.Add(x);
+                });
+            });
+
+            var existBook = BookList.FirstOrDefault(x => x.book.Id == bookId);
+            if (existBook != null)
+            {
+                return BadRequest(new GeneralResponse()
+                {
+                    Errors = new List<string>()
+                        {
+                            "Already added this book!"
+                        },
+                    Success = false,
+                });
+            }
+
             //Create UserBook
             var UBook = new UserBook
             {
@@ -211,7 +233,7 @@ namespace jwtProject.Controllers
         }
 
         [HttpDelete]
-        [Route("Details/{bookId}/DeleteFromUserBooks")]
+        [Route("Details/{userBookId}/DeleteFromUserBooks")]
         public async Task<IActionResult> DeleteUserBook(int userBookId)
         {
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
