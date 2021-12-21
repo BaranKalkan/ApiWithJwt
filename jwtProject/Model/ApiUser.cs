@@ -9,12 +9,12 @@ namespace jwtProject.Model
         [ForeignKey("UsersBook")]
         public List<UserBook> Books { get; set; }
         [ForeignKey("UsersFavBook")]
-        public List<UserBook> FavouriteBooks { get; set; }
+        public List<FavBook> FavouriteBooks { get; set; }
 
         public ApiUser()
         {  
             Books = new List<UserBook>();
-            FavouriteBooks = new List<UserBook>();
+            FavouriteBooks = new List<FavBook>();
         }
     }
 }

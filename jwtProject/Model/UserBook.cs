@@ -14,7 +14,8 @@ namespace jwtProject.Model
         public string userid { get; set; }
         public int CurrentPage { get; set; }
         public Book book { get; set; }
-        
+        public string URL { get; set; }
+
         public UserBook()
         {
             

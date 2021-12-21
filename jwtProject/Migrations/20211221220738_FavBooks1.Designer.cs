@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using jwtProject.Data;
 
 namespace jwtProject.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211221220738_FavBooks1")]
+    partial class FavBooks1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -240,9 +242,6 @@ namespace jwtProject.Migrations
                     b.Property<string>("URL")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("UsersFavBook")
-                        .HasColumnType("TEXT");
-
                     b.Property<int?>("bookId")
                         .HasColumnType("INTEGER");
 
@@ -250,8 +249,6 @@ namespace jwtProject.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UsersFavBook");
 
                     b.HasIndex("bookId");
 
@@ -273,6 +270,9 @@ namespace jwtProject.Migrations
                     b.Property<string>("UsersBook")
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("UsersFavBook")
+                        .HasColumnType("TEXT");
+
                     b.Property<int?>("bookId")
                         .HasColumnType("INTEGER");
 
@@ -282,6 +282,8 @@ namespace jwtProject.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("UsersBook");
+
+                    b.HasIndex("UsersFavBook");
 
                     b.HasIndex("bookId");
 
@@ -341,10 +343,6 @@ namespace jwtProject.Migrations
 
             modelBuilder.Entity("jwtProject.Model.FavBook", b =>
                 {
-                    b.HasOne("jwtProject.Model.ApiUser", null)
-                        .WithMany("FavouriteBooks")
-                        .HasForeignKey("UsersFavBook");
-
                     b.HasOne("jwtProject.Model.Book", "book")
                         .WithMany()
                         .HasForeignKey("bookId");
@@ -357,6 +355,10 @@ namespace jwtProject.Migrations
                     b.HasOne("jwtProject.Model.ApiUser", null)
                         .WithMany("Books")
                         .HasForeignKey("UsersBook");
+
+                    b.HasOne("jwtProject.Model.ApiUser", null)
+                        .WithMany("FavouriteBooks")
+                        .HasForeignKey("UsersFavBook");
 
                     b.HasOne("jwtProject.Model.Book", "book")
                         .WithMany()
