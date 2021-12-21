@@ -1,10 +1,11 @@
 ﻿using jwtProject.Data;
 using jwtProject.Model;
+using jwtProject.Model.DTOs.Responses;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
@@ -29,21 +30,25 @@ namespace jwtProject.Controllers
             _apiDbContext = apiDbContext;
         }
 
-    
-        [HttpGet]
-        [Route("GetCurrentPage/{bookId}")]
-        public async Task<IActionResult> GetCurrentPage(int id)
+
+        [HttpPost]
+        [Route("CurrentPage")]
+        public async Task<IActionResult> CurrentPage(int id)
         {
-            var user = (System.Security.Claims.ClaimsIdentity)User.Identity;
-            var userId = user.FindFirst("Id");
+            var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var userId = userIdentity.FindFirst("Id");
+            var user = await _userManager.FindByIdAsync(userId.Value);
+            return new JsonResult(id);
+        }
 
-            var count = await _apiDbContext.Users.FirstAsync(a => a.Id == userId.Value);
-            var book = count.Books.First(x => x.book.Id == id).CurrentPage;
-
-            return Ok(new List<string>
-            {
-               book.ToString()
-            });
+        [HttpGet]
+        [Route("CurrentPage")]
+        public async Task<IActionResult> CurrentPage()
+        {
+            var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
+            var userId = userIdentity.FindFirst("Id");
+            var user = await _userManager.FindByIdAsync(userId.Value);
+            return new JsonResult(500);
         }
     }
 }
