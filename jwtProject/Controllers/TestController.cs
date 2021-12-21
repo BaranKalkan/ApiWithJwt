@@ -35,12 +35,24 @@ namespace jwtProject.Controllers
 
         [HttpPost]
         [Route("CurrentPage")]
-        public async Task<IActionResult> CurrentPage(int id)
+        public async Task<IActionResult> CurrentPage(int userBookId)
         {
+            //Find User
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
             var user = await _userManager.FindByIdAsync(userId.Value);
-            return new JsonResult(id);
+            var current_page = user.Books.FirstOrDefault(x => x.Id == userBookId).book.TotalPage;
+
+            try
+            {
+                await _apiDbContext.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            return Ok(current_page);
         }
 
         [HttpGet]
