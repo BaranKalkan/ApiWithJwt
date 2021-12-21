@@ -322,7 +322,7 @@ namespace jwtProject.Controllers
             var userId = userIdentity.FindFirst("Id");
             var user = await _userManager.FindByIdAsync(userId.Value);
 
-            var existItem = await _apiDbContext.AllFavbooks.FirstOrDefaultAsync(x => x.Id == bookId);
+            var existItem = await _apiDbContext.AllFavbooks.FirstOrDefaultAsync(x => x.book.Id == bookId && x.userid == userId.Value);
 
             if (existItem == null)
                 return NotFound();
