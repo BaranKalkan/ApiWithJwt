@@ -139,7 +139,6 @@ namespace jwtProject.Controllers
             //Save changes on DB
             await _apiDbContext.SaveChangesAsync();
 
-            //Sildiğin kitaba son bir kez dön bak istedim
             return Ok(existItem);
         }
 
