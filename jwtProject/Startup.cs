@@ -42,6 +42,14 @@ namespace jwtProject
                     Configuration.GetConnectionString("DefaultConnection")
                 ));
 
+
+            services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
             services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -113,11 +121,12 @@ namespace jwtProject
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "jwtProject v1"));
             }
-
             app.UseHttpsRedirection();
 
             app.UseRouting();
 
+
+            app.UseCors("MyPolicy");
             app.UseAuthorization();
             app.UseAuthentication();
 

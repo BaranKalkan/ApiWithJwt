@@ -11,12 +11,14 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 
 namespace jwtProject.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [EnableCors("MyPolicy")]
     public class TestController : ControllerBase
     {
         private readonly UserManager<ApiUser> _userManager;
