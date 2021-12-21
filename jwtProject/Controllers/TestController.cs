@@ -73,9 +73,19 @@ namespace jwtProject.Controllers
                     if (x.book.Id == BookId)
                     {
                         x.CurrentPage=Current;
+                        success = true;
                     }
                 }
             });
+
+            try
+            {
+                _apiDbContext.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
 
             return Ok(success);
         }
