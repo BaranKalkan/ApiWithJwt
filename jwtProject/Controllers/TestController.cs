@@ -33,7 +33,7 @@ namespace jwtProject.Controllers
         }
 
 
-        [HttpPost]
+        [HttpGet]
         [Route("CurrentPage")]
         public async Task<IActionResult> CurrentPage(int BookId)
         {
@@ -57,7 +57,7 @@ namespace jwtProject.Controllers
             return Ok(current);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("CurrentPage")]
         public async Task<IActionResult> CurrentPage(int BookId, int Current)
         {
