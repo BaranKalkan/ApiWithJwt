@@ -44,30 +44,40 @@ namespace jwtProject.Controllers
 
             var current = -1;
             await _apiDbContext.AllUserBooks.Include(x => x.book).ForEachAsync(x =>
-             {
-                 if (x.userid == userId.Value)
-                 {
-                     if (x.book.Id == BookId)
-                     {
+            {
+                if (x.userid == userId.Value)
+                {
+                    if (x.book.Id == BookId)
+                    {
                          current = x.CurrentPage;
-
-                     }
-                 }
-
-             });
+                    }
+                }
+            });
 
             return Ok(current);
-
         }
 
         [HttpGet]
         [Route("CurrentPage")]
-        public async Task<IActionResult> CurrentPage()
+        public async Task<IActionResult> CurrentPage(int BookId, int Current)
         {
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
             var user = await _userManager.FindByIdAsync(userId.Value);
-            return new JsonResult(500);
+
+            bool success = false;
+            await _apiDbContext.AllUserBooks.Include(x => x.book).ForEachAsync(x =>
+            {
+                if (x.userid == userId.Value)
+                {
+                    if (x.book.Id == BookId)
+                    {
+                        x.CurrentPage=Current;
+                    }
+                }
+            });
+
+            return Ok(success);
         }
     }
 }
