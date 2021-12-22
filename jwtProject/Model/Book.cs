@@ -9,6 +9,9 @@ namespace jwtProject.Model
     {
         public int Id { get; set; }
         public string URL { get; set; }
+        public string Title { get; set; }
+        public string Authors { get; set; }
+        public string Subjects { get; set; }
 
     }
 }

@@ -85,7 +85,10 @@ namespace jwtProject.Controllers
                 var createdBook = new Model.Book()
                 {
                     Id = bookId,
-                    URL = $"https://www.gutenberg.org/files/{bookId}/{bookId}-h/{bookId}-h.htm"
+                    URL = $"https://www.gutenberg.org/files/{bookId}/{bookId}-h/{bookId}-h.htm",
+                    Authors = "yazar 1," + "yazar 2",
+                    Subjects = "Children's stories," + "Fantasy fiction",
+                    Title = "TITLE PLACEHOLDER"
                 };
 
                 apiDbContext.AllBooks.Add(createdBook);
