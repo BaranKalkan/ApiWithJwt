@@ -125,7 +125,7 @@ namespace jwtProject
 
             app.UseRouting();
 
-
+            app.UseCors(builder => builder.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod());
             app.UseCors("MyPolicy");
             app.UseAuthorization();
             app.UseAuthentication();

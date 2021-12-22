@@ -94,12 +94,31 @@ namespace jwtProject.Controllers
                 Root deserialized = JsonConvert.DeserializeObject<Root>(jsonString);
                 
                 var result0 = deserialized.results[0];
+                Author[] authors = result0.authors.ToArray();
+                string authorsString = "";
+                string[] subjects = result0.subjects.ToArray();
+                string subjectsString = "";
+                int i = 0;
+                foreach (Author a in authors)
+                {
+                    if (i == 0) authorsString = authorsString + a.name;
+
+                    else authorsString = authorsString +", " + a.name;
+                }
+                foreach (string a in subjects)
+                {
+                    if (i == 0) subjectsString = subjectsString + a;
+
+                    else subjectsString = subjectsString + ", " + a;
+                }
+                
                 var createdBook = new Model.Book()
                 {
                     Id = bookId,
                     URL = $"https://www.gutenberg.org/files/{bookId}/{bookId}-h/{bookId}-h.htm",
-                    Authors = result0.authors[0].name,
-                    Subjects = $"{result0.subjects[0]},",
+
+                    Authors = authorsString,
+                    Subjects = subjectsString,
                     Title = result0.title
                 };
 
