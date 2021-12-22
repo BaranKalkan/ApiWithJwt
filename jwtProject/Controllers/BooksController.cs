@@ -85,7 +85,7 @@ namespace jwtProject.Controllers
 
             if (book == null)
             {
-                string url = string.Format($"https://gutendex.com/books?id={bookId}");
+                string url = string.Format($"https://gutendex.com/books?ids={bookId}");
 
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Add("Accept", "application/json");
