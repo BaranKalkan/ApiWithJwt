@@ -257,7 +257,7 @@ namespace jwtProject.Controllers
         }
 
         [HttpDelete]
-        [Route("Details/{userBookId}/DeleteFromUserBooks")]
+        [Route("Details/{bookId}/DeleteFromUserBooks")]
         public async Task<IActionResult> DeleteUserBook(int bookId)
         {
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
