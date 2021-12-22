@@ -42,7 +42,7 @@ namespace jwtProject.Controllers
                 {
                     Errors = new List<string>()
                         {
-                            "Book doesn't exist"
+                            "Books doesn't exist"
                         },
                     Success = false,
                 });
@@ -82,92 +82,11 @@ namespace jwtProject.Controllers
                         Success = false,
                     });
                 }
-
                 book = createdBook;
             }
-        
             return Json(book);
         }
 
-        // Post: Book/Create
-        [HttpPost]
-        [Route("Create")]
-        public IActionResult Create([FromBody] BookCreateRequest bookToCreate)
-        {
-            if (!ModelState.IsValid) return BadRequest(new GeneralResponse { Errors = new List<string> { "Invalid parameters" }, Success = false });
-
-            var bookOnDb = _apiDbContext.AllBooks.Any(x => x.Id == bookToCreate.Id);
-
-            if (bookOnDb) return BadRequest(new GeneralResponse { Errors = new List<string> { "Book with the same id already exist" }, Success = false });
-
-            var book = new Model.Book()
-            {
-                Id = bookToCreate.Id,
-                URL = bookToCreate.URL
-            };
-            _apiDbContext.AllBooks.Add(book);
-
-            try
-            {
-                _apiDbContext.SaveChanges();
-            }
-            catch (Exception)
-            {
-                return BadRequest(new GeneralResponse
-                {
-                    Errors = new List<string>
-                    {
-                        "Unable to save changes"
-                    },
-                    Success = false,
-                });
-            }
-
-            return Json(book);
-        }
-
-        [HttpDelete]
-        [Route("Details/{bookId}/RemoveFromAllBooks")] 
-        public async Task<IActionResult> DeleteBook(int bookId)
-        {
-            //Finds book from AllBooks
-            var existItem = await _apiDbContext.AllBooks.FirstOrDefaultAsync(x => x.Id == bookId);
-
-            //null catch
-            if (existItem == null)
-                return NotFound();
-
-            //Removes all same book from UserBooks
-            await _apiDbContext.AllUserBooks.Include(x => x.book).ForEachAsync<UserBook>(x =>
-            {
-                if (x.book == existItem)
-                    _apiDbContext.AllUserBooks.Remove(x);
-            });
-
-            //Removes from all books
-            _apiDbContext.AllBooks.Remove(existItem);
-
-            //Save changes on DB
-
-            try
-            {
-                _apiDbContext.SaveChanges();
-            }
-            catch (Exception)
-            {
-                return BadRequest(new GeneralResponse
-                {
-                    Errors = new List<string>
-                    {
-                        "Unable to save changes"
-                    },
-                    Success = false,
-                });
-            }
-
-
-            return Ok(existItem);
-        }
 
         [HttpDelete]
         [Route("Details/{userBookId}/DeleteFromUserBooks")]
@@ -203,44 +122,5 @@ namespace jwtProject.Controllers
             return Ok(existItem);
         }
 
-        // Put: Book/Edit
-        [HttpPut]
-        public ActionResult Edit([FromBody] BookEditRequest newBookInfo)
-        {
-            if (!ModelState.IsValid) return BadRequest();
-
-            var bookOnDb = _apiDbContext.AllBooks.FirstOrDefault(dbBook => dbBook.Id == newBookInfo.Id);
-
-            if (bookOnDb == null)
-                return BadRequest(
-                    new GeneralResponse
-                    {
-                        Errors = new List<string>
-                        {
-                            "Book doesnt exist"
-                        },
-                        Success = false
-                    });
-
-            _apiDbContext.Entry(bookOnDb).CurrentValues.SetValues(newBookInfo);
-
-            try
-            {
-                _apiDbContext.SaveChanges();
-            }
-            catch (Exception)
-            {
-                return BadRequest(new GeneralResponse
-                {
-                    Errors = new List<string>
-                    {
-                        "Unable to save changes"
-                    },
-                    Success = false,
-                });
-            }
-
-            return Json(bookOnDb);
-        }
     }
 }
