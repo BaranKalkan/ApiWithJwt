@@ -12,13 +12,11 @@ namespace jwtProject.Model
             public string name { get; set; }
         }
 
-
         public class Result
         {
             public int id { get; set; }
             public string title { get; set; }
             public List<Author> authors { get; set; }
-            public List<object> translators { get; set; }
             public List<string> subjects { get; set; }
         }
 

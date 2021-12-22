@@ -7,7 +7,6 @@ namespace jwtProject.Model
 {
     public class FavBook
     {
-
         public int Id { get; set; }
         public string userid { get; set; }
         public Book book { get; set; }
@@ -16,6 +15,5 @@ namespace jwtProject.Model
         {
 
         }
-
     }
 }

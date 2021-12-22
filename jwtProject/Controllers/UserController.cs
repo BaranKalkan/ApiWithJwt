@@ -74,7 +74,7 @@ namespace jwtProject.Controllers
             Book book;
             try
             {
-                book = BookController.FindBook(_apiDbContext, bookId);
+                book = await BookController.FindBookAsync(_apiDbContext, bookId);
             }
             catch (Exception)
             {
@@ -188,7 +188,7 @@ namespace jwtProject.Controllers
             Book book;
             try
             {
-                book = BookController.FindBook(_apiDbContext, bookId);
+                book = await BookController.FindBookAsync(_apiDbContext, bookId);
             }
             catch (Exception)
             {

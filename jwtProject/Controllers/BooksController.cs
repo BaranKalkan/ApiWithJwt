@@ -14,6 +14,9 @@ using System.Threading.Tasks;
 
 using jwtProject.Model;
 using Microsoft.AspNetCore.Identity;
+using System.Net.Http;
+using static jwtProject.Model.GutendexRootResponse;
+using Newtonsoft.Json;
 
 namespace jwtProject.Controllers
 {
@@ -54,12 +57,12 @@ namespace jwtProject.Controllers
         // GET: Book/5
         [HttpGet]
         [Route("{bookId}")]
-        public IActionResult Book(int bookId)
+        public async Task<IActionResult> Book(int bookId)
         {
             Book book;
             try
             {
-                book = FindBook(_apiDbContext, bookId);
+                book = await FindBookAsync(_apiDbContext, bookId);
             }
             catch
             {
@@ -76,19 +79,28 @@ namespace jwtProject.Controllers
             return Json(book);
         }
 
-        public static Book FindBook(ApiDbContext apiDbContext, int bookId)
+        public static async Task<Book> FindBookAsync(ApiDbContext apiDbContext, int bookId)
         {
             var book = apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
 
             if (book == null)
             {
+                string url = string.Format($"https://gutendex.com/books?id={bookId}");
+
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Accept", "application/json");
+
+                var jsonString = await client.GetStringAsync(url);
+                Root deserialized = JsonConvert.DeserializeObject<Root>(jsonString);
+                
+                var result0 = deserialized.results[0];
                 var createdBook = new Model.Book()
                 {
                     Id = bookId,
                     URL = $"https://www.gutenberg.org/files/{bookId}/{bookId}-h/{bookId}-h.htm",
-                    Authors = "yazar 1," + "yazar 2",
-                    Subjects = "Children's stories," + "Fantasy fiction",
-                    Title = "TITLE PLACEHOLDER"
+                    Authors = result0.authors[0].name,
+                    Subjects = $"{result0.subjects[0]},",
+                    Title = result0.title
                 };
 
                 apiDbContext.AllBooks.Add(createdBook);
