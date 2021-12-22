@@ -56,8 +56,31 @@ namespace jwtProject.Controllers
         [Route("{bookId}")]
         public IActionResult Book(int bookId)
         {
-            var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
-            if ( book == null)
+            Book book;
+            try
+            {
+                book = FindBook(_apiDbContext, bookId);
+            }
+            catch
+            {
+                return BadRequest(new GeneralResponse()
+                {
+                    Errors = new List<string>()
+                        {
+                            "Veritabanı güncellenemedi"
+                        },
+                    Success = false,
+                });
+            }
+
+            return Json(book);
+        }
+
+        public static Book FindBook(ApiDbContext apiDbContext, int bookId)
+        {
+            var book = apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
+
+            if (book == null)
             {
                 var createdBook = new Model.Book()
                 {
@@ -65,28 +88,15 @@ namespace jwtProject.Controllers
                     URL = $"https://www.gutenberg.org/files/{bookId}/{bookId}-h/{bookId}-h.htm"
                 };
 
-                _apiDbContext.AllBooks.Add(createdBook);
-
-                try
-                {
-                    _apiDbContext.SaveChanges();
-                }
-                catch (Exception)
-                {
-                    return BadRequest(new GeneralResponse
-                    {
-                        Errors = new List<string>
-                    {
-                        "Unable to save changes"
-                    },
-                        Success = false,
-                    });
-                }
-                book = createdBook;
+                apiDbContext.AllBooks.Add(createdBook);
+             
+                apiDbContext.SaveChanges();
+               
+                return createdBook;
             }
-            return Json(book);
-        }
 
+            return book;
+        }
 
         [HttpDelete]
         [Route("Details/{userBookId}/DeleteFromUserBooks")]

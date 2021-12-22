@@ -57,6 +57,7 @@ namespace jwtProject.Controllers
                     Success = false,
                 });
             }
+
             return Json(BookList); 
         }
  
@@ -70,15 +71,19 @@ namespace jwtProject.Controllers
             var user = await _userManager.FindByIdAsync(userId.Value);
 
             //Find book
-            var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
-            if (book == null)
+            Book book;
+            try
             {
-                return BadRequest(new GeneralResponse()
+                book = BookController.FindBook(_apiDbContext, bookId);
+            }
+            catch (Exception)
+            {
+                return BadRequest(new GeneralResponse
                 {
-                    Errors = new List<string>()
-                        {
-                            "Book doesn't exist"
-                        },
+                    Errors = new List<string>
+                    {
+                        "Unable to save changes"
+                    },
                     Success = false,
                 });
             }
@@ -180,15 +185,19 @@ namespace jwtProject.Controllers
             var user = await _userManager.FindByIdAsync(userId.Value);
 
             //Find book
-            var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
-            if (book == null)
+            Book book;
+            try
             {
-                return BadRequest(new GeneralResponse()
+                book = BookController.FindBook(_apiDbContext, bookId);
+            }
+            catch (Exception)
+            {
+                return BadRequest(new GeneralResponse
                 {
-                    Errors = new List<string>()
-                        {
-                            "Book doesn't exist"
-                        },
+                    Errors = new List<string>
+                    {
+                        "Unable to save changes"
+                    },
                     Success = false,
                 });
             }
