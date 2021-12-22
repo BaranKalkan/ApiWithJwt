@@ -258,13 +258,13 @@ namespace jwtProject.Controllers
 
         [HttpDelete]
         [Route("Details/{userBookId}/DeleteFromUserBooks")]
-        public async Task<IActionResult> DeleteUserBook(int userBookId)
+        public async Task<IActionResult> DeleteUserBook(int bookId)
         {
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
             var user = await _userManager.FindByIdAsync(userId.Value);
 
-            var existItem = await _apiDbContext.AllUserBooks.FirstOrDefaultAsync(x => x.Id == userBookId);
+            var existItem = await _apiDbContext.AllUserBooks.FirstOrDefaultAsync(x => x.book.Id == bookId);
 
             if (existItem == null)
                 return NotFound();
