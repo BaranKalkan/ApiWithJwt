@@ -59,14 +59,31 @@ namespace jwtProject.Controllers
             var book = _apiDbContext.AllBooks.FirstOrDefault(x => x.Id == bookId);
             if ( book == null)
             {
-                return BadRequest(new GeneralResponse()
+                var createdBook = new Model.Book()
                 {
-                    Errors = new List<string>()
-                        {
-                            "Book doesn't exist"
-                        },
-                    Success = false,
-                });
+                    Id = bookId,
+                    URL = $"https://www.gutenberg.org/files/{bookId}/{bookId}-h/{bookId}-h.htm"
+                };
+
+                _apiDbContext.AllBooks.Add(createdBook);
+
+                try
+                {
+                    _apiDbContext.SaveChanges();
+                }
+                catch (Exception)
+                {
+                    return BadRequest(new GeneralResponse
+                    {
+                        Errors = new List<string>
+                    {
+                        "Unable to save changes"
+                    },
+                        Success = false,
+                    });
+                }
+
+                book = createdBook;
             }
         
             return Json(book);
@@ -86,10 +103,7 @@ namespace jwtProject.Controllers
             var book = new Model.Book()
             {
                 Id = bookToCreate.Id,
-                Title = bookToCreate.Title,
-                Description = bookToCreate.Description,
-                TotalPage = bookToCreate.TotalPage,
-                Author = bookToCreate.Author
+                URL = bookToCreate.URL
             };
             _apiDbContext.AllBooks.Add(book);
 
@@ -97,14 +111,13 @@ namespace jwtProject.Controllers
             {
                 _apiDbContext.SaveChanges();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return BadRequest(new GeneralResponse
                 {
                     Errors = new List<string>
                     {
-                        "Unable to save changes -> ",
-                        e.Message // destroy this line
+                        "Unable to save changes"
                     },
                     Success = false,
                 });
@@ -124,39 +137,68 @@ namespace jwtProject.Controllers
             if (existItem == null)
                 return NotFound();
 
-            var existUserBook = await _apiDbContext.AllUserBooks.FirstOrDefaultAsync(x => x.book == existItem);
-            //var existUserBooka = _apiDbContext.AllUserBooks.ForEachAsync;
-
             //Removes all same book from UserBooks
             await _apiDbContext.AllUserBooks.Include(x => x.book).ForEachAsync<UserBook>(x =>
             {
                 if (x.book == existItem)
                     _apiDbContext.AllUserBooks.Remove(x);
             });
+
             //Removes from all books
             _apiDbContext.AllBooks.Remove(existItem);
 
             //Save changes on DB
-            await _apiDbContext.SaveChangesAsync();
+
+            try
+            {
+                _apiDbContext.SaveChanges();
+            }
+            catch (Exception)
+            {
+                return BadRequest(new GeneralResponse
+                {
+                    Errors = new List<string>
+                    {
+                        "Unable to save changes"
+                    },
+                    Success = false,
+                });
+            }
+
 
             return Ok(existItem);
         }
 
         [HttpDelete]
-        [Route("Details/{bookId}/DeleteFromUserBooks")]
-        public async Task<IActionResult> DeleteUserBook(int bookId)
+        [Route("Details/{userBookId}/DeleteFromUserBooks")]
+        public async Task<IActionResult> DeleteUserBook(int userBookId)
         {
             var userIdentity = (System.Security.Claims.ClaimsIdentity)User.Identity;
             var userId = userIdentity.FindFirst("Id");
             var user = await _userManager.FindByIdAsync(userId.Value);
             
-            var existItem = await _apiDbContext.AllUserBooks.FirstOrDefaultAsync(x => x.Id == bookId);
+            var existItem = await _apiDbContext.AllUserBooks.FirstOrDefaultAsync(x => x.Id == userBookId);
 
             if (existItem == null)
                 return NotFound();
 
             _apiDbContext.AllUserBooks.Remove(existItem);
-            await _apiDbContext.SaveChangesAsync();
+
+            try
+            {
+                _apiDbContext.SaveChanges();
+            }
+            catch (Exception)
+            {
+                return BadRequest(new GeneralResponse
+                {
+                    Errors = new List<string>
+                    {
+                        "Unable to save changes"
+                    },
+                    Success = false,
+                });
+            }
 
             return Ok(existItem);
         }
@@ -186,28 +228,19 @@ namespace jwtProject.Controllers
             {
                 _apiDbContext.SaveChanges();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return BadRequest(new GeneralResponse
                 {
                     Errors = new List<string>
                     {
-                        "Unable to save changes -> ",
-                        e.Message // destroy this line
+                        "Unable to save changes"
                     },
                     Success = false,
                 });
             }
 
             return Json(bookOnDb);
-        }
-
-        // DELETE: Book/5
-        [HttpDelete]
-        [Route("{bookId}")]
-        public IActionResult Delete(int bookId)
-        {
-            return Json("Delete func is not implemented yet");
         }
     }
 }

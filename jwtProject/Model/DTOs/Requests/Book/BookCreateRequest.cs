@@ -12,15 +12,6 @@ namespace jwtProject.Model.DTOs.Requests
         public int Id { get; set; }
 
         [Required]
-        public string Title { get; set; }
-
-        [Required]
-        public string Description { get; set; }
-
-        [Required]
-        public int TotalPage { get; set; }
-
-        [Required]
-        public string Author { get; set; }
+        public string URL { get; set; }
     }
 }

@@ -14,20 +14,10 @@ namespace jwtProject.Model
         public string userid { get; set; }
         public int CurrentPage { get; set; }
         public Book book { get; set; }
-        public string URL { get; set; }
 
         public UserBook()
         {
             
         }
-        
-        //First Creation CTOR (thisCtor might change) 
-        public UserBook(Book book)
-        {
-            this.Id = 1; //will change the id (test purposes)
-            this.CurrentPage = 0;
-            this.book = book;
-        }
-
     }
 }

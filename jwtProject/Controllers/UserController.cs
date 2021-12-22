@@ -121,9 +121,16 @@ namespace jwtProject.Controllers
             {
                 _apiDbContext.SaveChanges();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e.Message);
+                return BadRequest(new GeneralResponse
+                {
+                    Errors = new List<string>
+                    {
+                        "Unable to save changes"
+                    },
+                    Success = false,
+                });
             }
 
             return Json(UBook);
@@ -156,7 +163,7 @@ namespace jwtProject.Controllers
                         {
                             "No Favourites"
                         },
-                        Success = false,
+                    Success = false,
                 });
             }
             
@@ -224,9 +231,16 @@ namespace jwtProject.Controllers
                 {
                     _apiDbContext.SaveChanges();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Console.WriteLine(e.Message);
+                    return BadRequest(new GeneralResponse
+                    {
+                        Errors = new List<string>
+                    {
+                        "Unable to save changes"
+                    },
+                        Success = false,
+                    });
                 }
 
                 return Json(UBook);
@@ -251,7 +265,22 @@ namespace jwtProject.Controllers
                 return NotFound();
 
             _apiDbContext.AllUserBooks.Remove(existItem);
-            await _apiDbContext.SaveChangesAsync();
+
+            try
+            {
+                _apiDbContext.SaveChanges();
+            }
+            catch (Exception)
+            {
+                return BadRequest(new GeneralResponse
+                {
+                    Errors = new List<string>
+                    {
+                        "Unable to save changes"
+                    },
+                    Success = false,
+                });
+            }
 
             return Ok(existItem);
         }
@@ -274,7 +303,22 @@ namespace jwtProject.Controllers
                 return NotFound();
 
             _apiDbContext.AllFavbooks.Remove(existItem);
-            await _apiDbContext.SaveChangesAsync();
+
+            try
+            {
+                _apiDbContext.SaveChanges();
+            }
+            catch (Exception)
+            {
+                return BadRequest(new GeneralResponse
+                {
+                    Errors = new List<string>
+                    {
+                        "Unable to save changes"
+                    },
+                    Success = false,
+                });
+            }
 
             return Ok(existItem);
         }
@@ -354,9 +398,16 @@ namespace jwtProject.Controllers
             {
                 _apiDbContext.SaveChanges();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                Console.WriteLine(e.Message);
+                return BadRequest(new GeneralResponse
+                {
+                    Errors = new List<string>
+                    {
+                        "Unable to save changes"
+                    },
+                    Success = false,
+                });
             }
 
             return Ok(success);
